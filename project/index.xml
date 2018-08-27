@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on Math Lacome</title>
+    <link>/project/</link>
+    <description>Recent content in Projects on Math Lacome</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Wed, 27 Apr 2016 00:00:00 +0200</lastBuildDate>
+    
+	<atom:link href="/project/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rugby - Demands of elite U20s rugby union</title>
+      <link>/project/rugby/</link>
+      <pubDate>Wed, 27 Apr 2016 00:00:00 +0200</pubDate>
+      
+      <guid>/project/rugby/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Soccer - Small-Sided Games</title>
+      <link>/project/soccer_ssg/</link>
+      <pubDate>Wed, 27 Apr 2016 00:00:00 +0200</pubDate>
+      
+      <guid>/project/soccer_ssg/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

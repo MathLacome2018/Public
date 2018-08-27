@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Math Lacome on Math Lacome</title>
+    <link>/</link>
+    <description>Recent content in Math Lacome on Math Lacome</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 15 Oct 2017 00:00:00 +0200</lastBuildDate>
+    <atom:link href="/" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Readiness or Between-player normalisation</title>
+      <link>/post/readiness/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/readiness/</guid>
+      <description>&lt;p&gt;We (Martin Buchheit, Ben M. Simpson &amp;amp; me) recently published &lt;a href=&#34;http://mathlacome.rbind.io/publication/2018-aspetar-rome1/&#34;&gt;a paper&lt;/a&gt; dealing with monitoring training status with GPS. If this paper, we argue that &lt;em&gt;“Since player activity patterns are more heavily influenced by contextual variables (e.g. rules, coaches’ interventions, scoreline, drills used) than players’ current fitness status &lt;a href=&#34;https://www.ncbi.nlm.nih.gov/pubmed/?term=Interpreting+physical+performance+in+professional+soccer+match-play%3A+should+we+be+more+pragmatic+in+our+approach%3F&#34;&gt;1&lt;/a&gt;, locomotor-related variables (level 1 and 2) may not be the most appropriate to directly monitor players’ training status.”&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;We proposed that player activity normalisation relative to the mean or median of the team (or a sub-group of player) could be another way to look at the data. Indeed, changes in content for a given day will less likely affect this new variable than overall total distance or high speed running. As soon as you get a sufficient amount of data (let’s said 2 months for one player), insights into players’ fitness and/or early signs of fatigue can be gained while following the trends of these normalised data over several consecutive training days.&lt;/p&gt;
+&lt;p&gt;Have a look at &lt;strong&gt;how simple is it&lt;/strong&gt; to build similar model to start grabbing information on players.&lt;/p&gt;
+&lt;p&gt;We need to load the good library into R - simple work, we only need tidyverse to work around the database and openxlsx to load our .xls file where we store the data.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(&amp;quot;tidyverse&amp;quot;)       
+library(&amp;quot;readxl&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let’s upload the data into R&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Master &amp;lt;- read_excel(&amp;quot;C:/Users/mlacome/Documents/0_Blog (to keep)/Readiness-blog.xlsx&amp;quot;, sheet=&amp;quot;Data&amp;quot;)
+head(Master,10)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 10 x 7
+##    `Pos. Grp` `Drill Category` Date                Code    Id_Player
+##    &amp;lt;chr&amp;gt;      &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;              &amp;lt;chr&amp;gt;   &amp;lt;chr&amp;gt;    
+##  1 AM         Session          2014-06-30 00:00:00 Session P2       
+##  2 AM         WU               2014-06-30 00:00:00 WU      P2       
+##  3 AM         WU               2014-06-30 00:00:00 WU      P2       
+##  4 AM         Ph               2014-06-30 00:00:00 Ph      P2       
+##  5 AM         Po               2014-06-30 00:00:00 Po      P2       
+##  6 CD         Session          2014-06-30 00:00:00 Session P3       
+##  7 CD         WU               2014-06-30 00:00:00 WU      P3       
+##  8 CD         WU               2014-06-30 00:00:00 WU      P3       
+##  9 CD         Ph               2014-06-30 00:00:00 Ph      P3       
+## 10 CD         Po               2014-06-30 00:00:00 Po      P3       
+## # ... with 2 more variables: VMAV_min &amp;lt;dbl&amp;gt;, MechW_min &amp;lt;dbl&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;So, now you can see how my database if done. It is a rectangular base with 1 column for position group, one for the drill category, one for the date, the Player name or Id and my GPS variables - I choose oly the distance covered above the maximal aerobic velocity and mechanical work.&lt;/p&gt;
+&lt;p&gt;For this first exemple, I will look at normalisation to the team only, so I won’t select my first column. For our model, as the number of players is highly variable and generally less than 20 for the majority of the drills, data is normalised against the median value rather than the mean because it better represents the central tendency in a small population.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Master_ReadiGroup &amp;lt;- Master %&amp;gt;%
+  dplyr::select(-`Pos. Grp`) %&amp;gt;%
+  # I&amp;#39;m filtering only Possession and Game simulation - I don&amp;#39;t want Tactical and Physical drills #
+  dplyr::filter(`Drill Category` == &amp;quot;Po&amp;quot; | `Drill Category` == &amp;quot;GS&amp;quot;) %&amp;gt;%
+  dplyr::group_by(Date, `Drill Category`) %&amp;gt;%
+  dplyr::summarize(Med_MAV = median(VMAV_min, na.rm=TRUE),
+                   Med_MechW = median(MechW_min, na.rm=TRUE))
+
+head(Master_ReadiGroup,10)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 10 x 4
+## # Groups:   Date [8]
+##    Date                `Drill Category` Med_MAV Med_MechW
+##    &amp;lt;dttm&amp;gt;              &amp;lt;chr&amp;gt;              &amp;lt;dbl&amp;gt;     &amp;lt;dbl&amp;gt;
+##  1 2014-06-30 00:00:00 Po                  7.04     0.858
+##  2 2014-07-01 00:00:00 Po                  8.74     0.812
+##  3 2014-07-02 00:00:00 Po                  3.82     0.687
+##  4 2014-07-03 00:00:00 Po                  9.28     0.838
+##  5 2014-07-04 00:00:00 GS                  6.22     0.515
+##  6 2014-07-04 00:00:00 Po                 11.6      0.841
+##  7 2014-07-05 00:00:00 GS                  5.91     0.804
+##  8 2014-07-05 00:00:00 Po                  2.32     0.575
+##  9 2014-07-06 00:00:00 GS                  8.04     0.797
+## 10 2014-07-07 00:00:00 GS                  3.96     0.459&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now, for each drill, each day, we have the median of the group for Distance above MAV &amp;amp; MechW.&lt;br /&gt;
+You can do the same operation to get your SD, but I prefer to fixe the SD of the drills to the mean SD for Po &amp;amp; GS. When you haver small number of players or outliers, SD can vary a lot and cause trouble in the normalisation. Saying that, we can move onto the normalisation of player’s activity.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Master_Readi &amp;lt;- Master %&amp;gt;%
+  dplyr::select(-`Pos. Grp`) %&amp;gt;%
+  dplyr::filter(`Drill Category` == &amp;quot;Po&amp;quot; | `Drill Category` == &amp;quot;GS&amp;quot;) %&amp;gt;%
+  ### I join the Master_ReadiGroup containing Median values w/ a Left Join ###
+  left_join(Master_ReadiGroup, by = c(&amp;quot;Drill Category&amp;quot;, &amp;quot;Date&amp;quot;)) %&amp;gt;%
+  ### I standardise everything w/ Readi = (Value - median) / pre fixed drill SD #
+  dplyr::mutate(Readi_MAV = (VMAV_min - Med_MAV)/ifelse(`Drill Category` == &amp;quot;Po&amp;quot;,3.4, 4.2),
+                Readi_MechW = (MechW_min - Med_MechW)/ifelse(`Drill Category` == &amp;quot;Po&amp;quot;,0.22, 0.23))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, you have 2 options - You are happy to stop here, with players activites normalised to the group median. You can start track this number and look for changes trends in changes. One issue you can face stopping now is that some players might have more variation than others due to their positionnal role or playing profile. So how can I compare a drop in 5% in one players with a 7% in another player? That’s were I recommend (might I’m wrong?) to normalised again the data, but this time, based on the player mean &amp;amp; SD.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Mean_Readi_Player &amp;lt;- Master_Readi %&amp;gt;%
+  dplyr::select(Id_Player, `Drill Category`, Readi_MAV, Readi_MechW) %&amp;gt;%
+  # Here we group our data by Player and Drills (Po or Gs)
+  dplyr::group_by(Id_Player, `Drill Category`) %&amp;gt;%
+  dplyr::summarize(Mean_Readi_MAV = mean(Readi_MAV, na.rm=TRUE),
+                   Mean_Readi_MechW = mean(Readi_MechW, na.rm=TRUE),
+                   SD_Readi_MAV = sd(Readi_MAV, na.rm=TRUE),
+                   SD_Readi_MechW = sd(Readi_MechW, na.rm=TRUE))
+
+# Same operation - left join the mean &amp;amp; SD in the former Master_Readi &amp;amp; standardise.
+Readiness_Final &amp;lt;- Master_Readi %&amp;gt;%
+# Left join by Id_Player AND Drill category to have the appropriate mean &amp;amp; SD for each player.
+  left_join(Mean_Readi_Player, by = c(&amp;quot;Id_Player&amp;quot;, &amp;quot;Drill Category&amp;quot;)) %&amp;gt;%
+  dplyr::mutate(Readiness_MAV = (Readi_MAV - Mean_Readi_MAV) / SD_Readi_MAV,
+                Readiness_MechW = (Readi_MechW - Mean_Readi_MechW) / SD_Readi_MechW) %&amp;gt;%
+# In the end, I only want 1 value by day, so I group_by Date &amp;amp; summarise.
+  group_by(Id_Player, Date) %&amp;gt;%
+  summarise(Readi_MAV = mean(Readiness_MAV),
+            Readi_MechW = mean(Readiness_MechW))
+
+head(Readiness_Final, 10)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 10 x 4
+## # Groups:   Id_Player [2]
+##    Id_Player Date                Readi_MAV Readi_MechW
+##    &amp;lt;chr&amp;gt;     &amp;lt;dttm&amp;gt;                  &amp;lt;dbl&amp;gt;       &amp;lt;dbl&amp;gt;
+##  1 P1        2014-06-30 00:00:00    0.222       1.49  
+##  2 P1        2014-07-01 00:00:00    0.664       0.355 
+##  3 P1        2014-07-02 00:00:00   -0.393      -0.642 
+##  4 P1        2014-07-03 00:00:00   -0.740       0.263 
+##  5 P1        2014-07-04 00:00:00   -0.0177      0.204 
+##  6 P1        2014-07-05 00:00:00    0.399      -0.153 
+##  7 P10       2014-06-30 00:00:00   -0.315       0.672 
+##  8 P10       2014-07-01 00:00:00    0.741      -0.286 
+##  9 P10       2014-07-02 00:00:00   -0.250       0.331 
+## 10 P10       2014-07-03 00:00:00   -0.658       0.0622&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Here was a simple exemple of how to work around your data to get more information about how you players cope with the training. You can go further on with rolling mean and look for trends but I will talk about that another time. In my next post, I will explain a concept &lt;em&gt;a bit more&lt;/em&gt; complex where we looked at modelisation &amp;amp; heart rate. Let me know if you have any comments. I know that this code can be optimised and would love to heard about you and your solutions. Feel free to email and I would be happy to amend the code or post your solution online!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Welcome</title>
+      <link>/post/welcome/</link>
+      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/welcome/</guid>
+      <description>&lt;p&gt;Have you ever collected data with your team and wonder what you can do with them? How to get insights from them and how to communicate clearly your results?&lt;/p&gt;
+
+&lt;p&gt;… You’re not alone! I asked myself this question millions of times over the last 10 years.&lt;/p&gt;
+
+&lt;p&gt;I will try to post here on a regular basis. I will try to write the posts I would have love to read years before. My idea is simple: I want to show what we can do with some data in term of analysis or visualisation to get better insight on how players cope with training load. Is their performance improving or are they struggling to cope with the load?&lt;/p&gt;
+
+&lt;p&gt;To work I mainly use 3 tools: Excel, R &amp;amp; Tableau software. I’m not an expert in none of them but I will try to give some advice on how to use these tools to delve into the data and bring some insights to the coaching staff. As I told you – I’m not a data scientist, nor a data viz specialist and not even an native English speaker! So, please, when you are reading my post, if you see any way to improve my analyses, visualisation or just the flow of my words, tell me &amp;amp; I will adapt!&lt;/p&gt;
+
+&lt;p&gt;Propose me new ways of thinking, improved R code as well as nicer or simply more efficient data visualisation. I really think that the power of crowd and thus, open innovation, is way better for innovation than what can do 1 brain, even if it was the best brain in the world.&lt;/p&gt;
+
+&lt;p&gt;Mathieu.&lt;/p&gt;
+
+&lt;p&gt;Photo by &lt;a style=&#34;background-color:black;color:white;text-decoration:none;padding:4px 6px;font-family:-apple-system, BlinkMacSystemFont, &amp;quot;San Francisco&amp;quot;, &amp;quot;Helvetica Neue&amp;quot;, Helvetica, Ubuntu, Roboto, Noto, &amp;quot;Segoe UI&amp;quot;, Arial, sans-serif;font-size:12px;font-weight:bold;line-height:1.2;display:inline-block;border-radius:3px&#34; href=&#34;https://unsplash.com/@samuelzeller?utm_medium=referral&amp;amp;utm_campaign=photographer-credit&amp;amp;utm_content=creditBadge&#34; target=&#34;_blank&#34; rel=&#34;noopener noreferrer&#34; title=&#34;Download free do whatever you want high-resolution photos from Samuel Zeller&#34;&gt;&lt;span style=&#34;display:inline-block;padding:2px 3px&#34;&gt;&lt;svg xmlns=&#34;http://www.w3.org/2000/svg&#34; style=&#34;height:12px;width:auto;position:relative;vertical-align:middle;top:-1px;fill:white&#34; viewBox=&#34;0 0 32 32&#34;&gt;&lt;title&gt;unsplash-logo&lt;/title&gt;&lt;path d=&#34;M20.8 18.1c0 2.7-2.2 4.8-4.8 4.8s-4.8-2.1-4.8-4.8c0-2.7 2.2-4.8 4.8-4.8 2.7.1 4.8 2.2 4.8 4.8zm11.2-7.4v14.9c0 2.3-1.9 4.3-4.3 4.3h-23.4c-2.4 0-4.3-1.9-4.3-4.3v-15c0-2.3 1.9-4.3 4.3-4.3h3.7l.8-2.3c.4-1.1 1.7-2 2.9-2h8.6c1.2 0 2.5.9 2.9 2l.8 2.4h3.7c2.4 0 4.3 1.9 4.3 4.3zm-8.6 7.5c0-4.1-3.3-7.5-7.5-7.5-4.1 0-7.5 3.4-7.5 7.5s3.3 7.5 7.5 7.5c4.2-.1 7.5-3.4 7.5-7.5z&#34;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span style=&#34;display:inline-block;padding:2px 3px&#34;&gt;Samuel Zeller&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Monitoring training status with player-tracking technology. Still on the road to Rome. Part 2</title>
+      <link>/publication/2018-aspetar-rome2/</link>
+      <pubDate>Sun, 01 Jul 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2018-aspetar-rome2/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Monitoring training status with player-tracking technology. Still on the road to Rome. Part 1</title>
+      <link>/publication/2018-aspetar-rome1/</link>
+      <pubDate>Fri, 01 Jun 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2018-aspetar-rome1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>PSG | Striving for Excellence | 2018</title>
+      <link>/talk/2018-psg-striving/</link>
+      <pubDate>Mon, 14 May 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/talk/2018-psg-striving/</guid>
+      <description>&lt;p&gt;You can find the slides here:  &lt;a href=&#34;https://slides.com/mathieulacome/psgsummit2018&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Training Periodization Over an Elite Rugby Sevens Season: From Theory to Practice</title>
+      <link>/publication/2018-training-periodisation-theoriepractice/</link>
+      <pubDate>Tue, 01 May 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2018-training-periodisation-theoriepractice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Injury rate and prevention in elite football: let us first search within our own hearts</title>
+      <link>/publication/2018-injury-rate-prevention/</link>
+      <pubDate>Sun, 01 Apr 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2018-injury-rate-prevention/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Monitoring of Post-match Fatigue in Professional Soccer: Welcome to the Real World</title>
+      <link>/publication/2018-monitoring-pmf/</link>
+      <pubDate>Thu, 01 Mar 2018 00:00:00 +0100</pubDate>
+      
+      <guid>/publication/2018-monitoring-pmf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Monitoring players&#39; readiness using predicted Heart Rate responses to football drills</title>
+      <link>/publication/2018-readiness-predhr/</link>
+      <pubDate>Thu, 01 Feb 2018 00:00:00 +0100</pubDate>
+      
+      <guid>/publication/2018-readiness-predhr/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Workload, fatigue and muscle damage in an u20 rugby union team over an intensified international tournament</title>
+      <link>/publication/2018-fatigue-u20-intensified/</link>
+      <pubDate>Mon, 01 Jan 2018 00:00:00 +0100</pubDate>
+      
+      <guid>/publication/2018-fatigue-u20-intensified/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Exposure time, running and skill-related performance in international u20 rugby union players during an intensified tournament</title>
+      <link>/publication/2017-running-u20-intensified/</link>
+      <pubDate>Tue, 01 Aug 2017 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2017-running-u20-intensified/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Supercompensation kinetics of physical qualities during a taper in team-sport athletes</title>
+      <link>/publication/2017-supercompensation/</link>
+      <pubDate>Tue, 01 Aug 2017 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2017-supercompensation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Fluctuations in running and skill-related performance in elite rugby union match-play</title>
+      <link>/publication/2017-fluctuations-rugby-union/</link>
+      <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2017-fluctuations-rugby-union/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Locomotor and Heart Rate responses of floaters during Small-Sided Games in elite soccer players: effect of pitch size and inclusion of goalkeepers</title>
+      <link>/publication/2017-locomotor-hr-jokers/</link>
+      <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2017-locomotor-hr-jokers/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Neuromuscular responses to conditioned soccer sessions assessed via GPS-embedded accelerometers: Insights into Tactical periodization</title>
+      <link>/publication/2017-neuromuscular-tactical-periodisation/</link>
+      <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2017-neuromuscular-tactical-periodisation/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

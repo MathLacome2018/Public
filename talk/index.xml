@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Recent  Talks on Math Lacome</title>
+    <link>/talk/</link>
+    <description>Recent content in Recent  Talks on Math Lacome</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018</copyright>
+    <lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0100</lastBuildDate>
+    
+	<atom:link href="/talk/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>PSG | Striving for Excellence | 2018</title>
+      <link>/talk/2018-psg-striving/</link>
+      <pubDate>Mon, 14 May 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/talk/2018-psg-striving/</guid>
+      <description>You can find the slides here: Slides.</description>
+    </item>
+    
+  </channel>
+</rss>
