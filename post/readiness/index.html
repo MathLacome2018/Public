@@ -350,11 +350,11 @@ We proposed that player activity normalisation relative to the mean or median of
     <div class="article-style" itemprop="articleBody">
       <p>We (Martin Buchheit, Ben M. Simpson &amp; me) recently published <a href="http://mathlacome.rbind.io/publication/2018-aspetar-rome1/">a paper</a> dealing with monitoring training status with GPS. If this paper, we argue that <em>“Since player activity patterns are more heavily influenced by contextual variables (e.g. rules, coaches’ interventions, scoreline, drills used) than players’ current fitness status <a href="https://www.ncbi.nlm.nih.gov/pubmed/?term=Interpreting+physical+performance+in+professional+soccer+match-play%3A+should+we+be+more+pragmatic+in+our+approach%3F">1</a>, locomotor-related variables (level 1 and 2) may not be the most appropriate to directly monitor players’ training status.”</em></p>
 <p>We proposed that player activity normalisation relative to the mean or median of the team (or a sub-group of player) could be another way to look at the data. Indeed, changes in content for a given day will less likely affect this new variable than overall total distance or high speed running. As soon as you get a sufficient amount of data (let’s said 2 months for one player), insights into players’ fitness and/or early signs of fatigue can be gained while following the trends of these normalised data over several consecutive training days.</p>
-<p>Have a look at <strong>how simple is it</strong> to build similar model to start grabbing information on players.</p>
-<p>We need to load the good library into R - simple work, we only need tidyverse to work around the database and openxlsx to load our .xls file where we store the data.</p>
+<p>In this post, I will show <strong>how simple is it</strong> to start building similar model and start grabbing information on players.</p>
+<p>We need to load the good library into R - we only need tidyverse to work around the database and openxlsx to load our .xls file where we store the data.</p>
 <pre class="r"><code>library(&quot;tidyverse&quot;)       
 library(&quot;readxl&quot;)</code></pre>
-<p>Let’s upload the data into R</p>
+<p>I upload the data into R and visualize the format of my database.</p>
 <pre class="r"><code>Master &lt;- read_excel(&quot;C:/Users/mlacome/Documents/0_Blog (to keep)/Readiness-blog.xlsx&quot;, sheet=&quot;Data&quot;)
 head(Master,10)</code></pre>
 <pre><code>## # A tibble: 10 x 7
@@ -371,8 +371,9 @@ head(Master,10)</code></pre>
 ##  9 CD         Ph               2014-06-30 00:00:00 Ph      P3       
 ## 10 CD         Po               2014-06-30 00:00:00 Po      P3       
 ## # ... with 2 more variables: VMAV_min &lt;dbl&gt;, MechW_min &lt;dbl&gt;</code></pre>
-<p>So, now we can see how my database if done. It is a rectangular base with 1 column for position group, one for the drill category, one for the date, the Player name or Id and my GPS variables - I choose only the distance covered above the maximal aerobic velocity and mechanical work.</p>
-<p>For this first exemple, I will look at normalisation to the team only, so I won’t select my first column. For our model, as the number of players is highly variable and generally less than 20 for the majority of the drills, data is normalised against the median value rather than the mean because it better represents the central tendency in a small population.</p>
+<p>Now we can see how my database is done. It is a rectangular base with 1 column for position group, one for the drill category, one for the date, the Player name or Id and my GPS variables - I chose only the distance covered above the maximal aerobic velocity and mechanical work.</p>
+<p>For this first exemple, I will look at normalisation to the team only, so I won’t select my first column. I drop this column with <strong>select(-Var)</strong></p>
+<p>For our model, as the number of players is highly variable and generally less than 20 for the majority of the drills, data is normalised against the median value rather than the mean because it better represents the central tendency in a small population.</p>
 <pre class="r"><code>Master_ReadiGroup &lt;- Master %&gt;%
   dplyr::select(-`Pos. Grp`) %&gt;%
   # I&#39;m filtering only Possession and Game simulation - I don&#39;t want Tactical and Physical drills #
@@ -397,7 +398,8 @@ head(Master_ReadiGroup,10)</code></pre>
 ##  9 2014-07-06 00:00:00 GS                  8.04     0.797
 ## 10 2014-07-07 00:00:00 GS                  3.96     0.459</code></pre>
 <p>Now, for each drill, each day, we have the median of the group for Distance above MAV &amp; MechW.<br />
-We can do the same operation to get the standard deviation (SD), but I prefer to set the SD of the drills to the average SD for each drills (Possessions (Po) &amp; game simulations (GS). When you have a small number of players or outliers, SD can vary a lot and cause trouble for the normalisation. Saying that, we can move onto the normalisation of player’s activity.</p>
+We can do the same operation to get the standard deviation (SD), but I prefer to set the SD of the drills to the average SD for each drills (Possessions (Po) &amp; game simulations (GS). When we have a small number of players or outliers, SD can vary a lot and cause trouble for the normalisation.</p>
+<p>Saying that, we can move onto the normalisation of player’s activity.</p>
 <pre class="r"><code>Master_Readi &lt;- Master %&gt;%
   dplyr::select(-`Pos. Grp`) %&gt;%
   dplyr::filter(`Drill Category` == &quot;Po&quot; | `Drill Category` == &quot;GS&quot;) %&gt;%
@@ -406,7 +408,7 @@ We can do the same operation to get the standard deviation (SD), but I prefer to
   ### I standardise everything w/ Readi = (Value - median) / pre fixed drill SD #
   dplyr::mutate(Readi_MAV = (VMAV_min - Med_MAV)/ifelse(`Drill Category` == &quot;Po&quot;,3.4, 4.2),
                 Readi_MechW = (MechW_min - Med_MechW)/ifelse(`Drill Category` == &quot;Po&quot;,0.22, 0.23))</code></pre>
-<p>Then, we have 2 options - We are happy to stop here, with players’ activities normalised to the median of the group. Or, we can start to track this number over time and look for changes in trends. One issue we could face stopping now is that some players might have more variations (noise) than others due to their positionnal role or playing profile. So how can I compare a drop of 5% in one players with a 7% in another one? That’s were I recommend (might I’m wrong?) to normalised again the data, but this time, based on the player individual mean &amp; SD over time.</p>
+<p>Then, we have 2 options - (1) with players’ activities normalised to the median of the group, or (2) we can start to track this number over time and look for changes in trends. One issue we could face stopping now is that some players might have more variations (noise) than others due to their positionnal role or playing profile. So how can I compare a drop of 5% in one players with a 7% in another one? That’s were I would recommend to normalised again the data, but this time, based on the player individual mean &amp; SD over time.</p>
 <pre class="r"><code>Mean_Readi_Player &lt;- Master_Readi %&gt;%
   dplyr::select(Id_Player, `Drill Category`, Readi_MAV, Readi_MechW) %&gt;%
   # Here we group our data by Player and Drills (Po or Gs)
@@ -442,7 +444,7 @@ head(Readiness_Final, 10)</code></pre>
 ##  8 P10       2014-07-01 00:00:00    0.741      -0.286 
 ##  9 P10       2014-07-02 00:00:00   -0.250       0.331 
 ## 10 P10       2014-07-03 00:00:00   -0.658       0.0622</code></pre>
-<p>Here, it was a simple exemple of how to work around your data to get more information about how your players cope with the training. You can go further on with rolling mean and look for trends but I will talk about that another time. In my next post, I will explain a concept <em>a bit more</em> complex where we looked at modelisation &amp; heart rate. Let me know if you have any comments. I know that this code can be optimised and would love to heard about you and your solutions. Feel free to email and I would be happy to amend the code or post your solution online!</p>
+<p>Here, it was a simple exemple of how to work around your data to get more information about how your players cope with the training. We can go further on with rolling mean and look for trends but I will talk about that another time. In my next post, I will explain a concept <strong>a bit more</strong> complex where we looked at modelisation &amp; heart rate. Let me know if you have any comments. I know that this code can be optimised and would love to heard if you have any optimised solutions. Feel free to email and I would be happy to amend the code or post your solution online!</p>
 
     </div>
 
