@@ -133,7 +133,7 @@ Figure 1: From data collection to data visualization
 &lt;/p&gt;
 &lt;/div&gt;
 &lt;p&gt;We then store these data in databases that can be as simple as excel sheet to more complex and powerful databases such as Exasol. Then, I have decided - and I’ll explain my choices later in this post - to move most of my analyses into R and reports into Tableau software. In this blog, I will show what we can do with R and Tableau software in term of analysis or visualization to get better insights on how players cope with the training load or team perform. I will explain (and give the code) of the methods used in some of our published papers.&lt;/p&gt;
-&lt;p&gt;In this blog, In this blog, I will not provide an introduction to computer science, R code or data visualization. There are experts for that and I recommend you to look at the references I provide in each sub-section.&lt;/p&gt;
+&lt;p&gt;In this blog, I will not provide an introduction to computer science, R code or data visualization. There are experts for that and I recommend you to look at the references I provide in each sub-section.&lt;/p&gt;
 &lt;/div&gt;
 &lt;div id=&#34;why-i-use-r&#34; class=&#34;section level2&#34;&gt;
 &lt;h2&gt;Why I use R&lt;/h2&gt;
@@ -175,6 +175,15 @@ unsplash-logo
 &lt;p&gt;&lt;path d=&#34;M20.8 18.1c0 2.7-2.2 4.8-4.8 4.8s-4.8-2.1-4.8-4.8c0-2.7 2.2-4.8 4.8-4.8 2.7.1 4.8 2.2 4.8 4.8zm11.2-7.4v14.9c0 2.3-1.9 4.3-4.3 4.3h-23.4c-2.4 0-4.3-1.9-4.3-4.3v-15c0-2.3 1.9-4.3 4.3-4.3h3.7l.8-2.3c.4-1.1 1.7-2 2.9-2h8.6c1.2 0 2.5.9 2.9 2l.8 2.4h3.7c2.4 0 4.3 1.9 4.3 4.3zm-8.6 7.5c0-4.1-3.3-7.5-7.5-7.5-4.1 0-7.5 3.4-7.5 7.5s3.3 7.5 7.5 7.5c4.2-.1 7.5-3.4 7.5-7.5z&#34;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/span&gt;&lt;span style=&#34;display:inline-block;padding:2px 3px&#34;&gt;Samuel Zeller&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
 &lt;/div&gt;
 </description>
+    </item>
+    
+    <item>
+      <title>Sleep quality and quantity of international rugby sevens players during preseason</title>
+      <link>/publication/2018-load-sleep/</link>
+      <pubDate>Wed, 01 Aug 2018 00:00:00 +0200</pubDate>
+      
+      <guid>/publication/2018-load-sleep/</guid>
+      <description></description>
     </item>
     
     <item>
@@ -293,15 +302,6 @@ Sorry for the quality but it has been uploaded from a Powerpoint.&lt;/p&gt;
       <pubDate>Tue, 01 Aug 2017 00:00:00 +0200</pubDate>
       
       <guid>/publication/2017-supercompensation/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Fluctuations in running and skill-related performance in elite rugby union match-play</title>
-      <link>/publication/2017-fluctuations-rugby-union/</link>
-      <pubDate>Thu, 01 Jun 2017 00:00:00 +0200</pubDate>
-      
-      <guid>/publication/2017-fluctuations-rugby-union/</guid>
       <description></description>
     </item>
     
