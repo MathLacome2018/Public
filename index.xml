@@ -11,6 +11,60 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>How to compare performance with previous dates</title>
+      <link>/post/performance-comparison/</link>
+      <pubDate>Thu, 20 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/performance-comparison/</guid>
+      <description>&lt;p&gt;When it comes to providing reports to the coaching staff or players, the first impression is always important. Within 5 seconds, a coach can decide &lt;em&gt;not to&lt;/em&gt; have a look at your report. Within 5 seconds, it is always the design and overall aspect of the report which makes a difference, rarely the underlying analyses. In its brilliant paper &lt;a href=&#34;https://martin-buchheit.net/2017/02/18/want-to-see-my-report-coach/&#34;&gt;Want to see my report, Coach&lt;/a&gt;, Martin Buchheit talk about the importance of effective sports science support and rank the attractiveness of the reports among the most important elements to take into account. As such, data needs to be provided to decision-makers in an user-friendly and engaging format &lt;a href=&#34;http://mathlacome.rbind.io/publication/2018-aspetar-rome2/&#34;&gt;2&lt;/a&gt;. As part of our job, we need to compare players performance with previous performance or with pairs daily. In this post, we will try to move step-by-step from the classic &lt;strong&gt;2 bars side-by-side&lt;/strong&gt; chart to something that provides more insights and which is more engaging.&lt;/p&gt;
+&lt;div class=&#34;figure&#34;&gt;&lt;span id=&#34;fig:unnamed-chunk-1&#34;&gt;&lt;/span&gt;
+&lt;img src=&#34;/img/1_Comparing/BubbleChart0.jpg&#34; alt=&#34;2 bars side-by-side chart to compare player A with the average performance&#34; width=&#34;30%&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;
+Figure 1: 2 bars side-by-side chart to compare player A with the average performance
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&#34;figure&#34;&gt;&lt;span id=&#34;fig:unnamed-chunk-2&#34;&gt;&lt;/span&gt;
+&lt;img src=&#34;/img/1_Comparing/BubbleChart01.jpg&#34; alt=&#34;Comparing performance with previous performances - another approach&#34; width=&#34;100%&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;
+Figure 2: Comparing performance with previous performances - another approach
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;importing-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Importing data&lt;/h2&gt;
+&lt;p&gt;When we open our Tableau software, the first thing is to import our dataset. This dataset is simple - 1 column with the player name, one with date and one with a performance-related variable (here, Mechanical Work during the game).&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-1.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;div id=&#34;visualizing-data&#34; class=&#34;section level2&#34;&gt;
+&lt;h2&gt;Visualizing data&lt;/h2&gt;
+&lt;p&gt;We start by moving the ‘Performance variable’ (Mechanical Work (a.u)) into the Column Shelf. The variable is aggregated as the sum of all the data point for this variable and visualized as a bar chart.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-2.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;My goal is to get a point for each different data point (here, dates). We need to take the &lt;strong&gt;Date&lt;/strong&gt; pill from the Dimension Shelf to &lt;em&gt;Details&lt;/em&gt; in the &lt;em&gt;Mark&lt;/em&gt; Shelf. Right click on the &lt;strong&gt;Date&lt;/strong&gt; which is automatically aggregated by Year and select &lt;em&gt;Exact date&lt;/em&gt; (Date exacte in French!). Tableau has changed your bar chart into multiple points along the x-axis.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-4.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;To move forward, we need to create a Parameter in tableau to select the date we want to compare with the whole dataset. In the left panel, click on &lt;strong&gt;create parameter&lt;/strong&gt; and set it to Date and allow all values.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-Param.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;The next step is to build a new variable to say “This is the point I want to highlight”. Right click on the &lt;strong&gt;Date&lt;/strong&gt; pills &amp;gt; create &amp;gt; calculated field.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-5.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Then, I simply do an If statement, either with a IF xx THEN xx ELSE xx END statement or, easier, IIF formula.&lt;/p&gt;
+&lt;p&gt;If my date is the same than the one selected in my parameter, we return a string “Selected Date” (or whatever you want), if not we return “Others”.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-6.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Right click on the parameter (bottom shelf, &lt;strong&gt;Selected_Date&lt;/strong&gt; pill) and click on Show parameter command.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-7.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;After selecting a date in the parameter, we need to put the &lt;strong&gt;Selected_Date&lt;/strong&gt; from the &lt;em&gt;Dimension Shelf&lt;/em&gt; into Color and Size in the &lt;em&gt;Mark shelf&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-8a.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We can play with the Color and Size Mark to customize this visualization.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-8B.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Finally, I use the Analytic panel and drag the Box-plot (french traduction is “Boite à Moustache”!) into my Viz. A customizable box-plot appear in the Viz. I use it often as a way to provide Median and inter-quartile ranges into my Viz. When your players or coaching staff is educated to it, I find it a very efficient way to rank your performance!&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/1_Comparing/BubbleChart-9.jpg&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Playing with the different formating option and marks and you can easily end-up with a similar visualization. In my opinion, it is as simple as doing 2 bar charts (or 1 bar and a point!) and much more efficient and engaging.&lt;/p&gt;
+&lt;iframe align = &#34;center&#34; width = &#34;750&#34; height = &#34;500&#34; src=&#34;https://public.tableau.com/profile/mathlacome#!/vizhome/MW-performancecomparison/Tableaudebord1??:showVizHome=no&amp;:embed=true&#34;/&gt;
+&lt;p&gt;References:&lt;/p&gt;
+&lt;p&gt;1 - &lt;a href=&#34;https://martin-buchheit.net/2017/02/18/want-to-see-my-report-coach/&#34;&gt;Want to see my report, coach? Sport science reporting in the real world - Buchheit M.&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;2 - &lt;a href=&#34;http://mathlacome.rbind.io/publication/2018-aspetar-rome2/&#34;&gt;Monitoring training status with player-tracking technology - Lacome &amp;amp; al.&lt;/a&gt;&lt;/p&gt;
+&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Readiness or Between-player normalisation</title>
       <link>/post/readiness/</link>
       <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
@@ -293,15 +347,6 @@ Sorry for the quality but it has been uploaded from a Powerpoint.&lt;/p&gt;
       <pubDate>Tue, 01 Aug 2017 00:00:00 +0200</pubDate>
       
       <guid>/publication/2017-running-u20-intensified/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Supercompensation kinetics of physical qualities during a taper in team-sport athletes</title>
-      <link>/publication/2017-supercompensation/</link>
-      <pubDate>Tue, 01 Aug 2017 00:00:00 +0200</pubDate>
-      
-      <guid>/publication/2017-supercompensation/</guid>
       <description></description>
     </item>
     
