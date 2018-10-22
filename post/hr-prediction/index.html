@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme" content="hugo-academic">
+  <meta name="generator" content="Hugo 0.40.3" />
+  <meta name="author" content="Mathieu Lacome">
+
+  
+  
+  
+  
+    
+      
+    
+  
+  <meta name="description" content="In my last post, we saw a method to perform simple between-players normalisation to get first insights on players’ “performance” status. Like every model, this model has some known limitations and thus, it is important to use it in combination with other models to create a full stream of information. To overcome the limitations inherent to the use of this model, examining the dose-response relationship between workload and immediate physiological responses (or more simply generic models of work efficiency, i.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="/post/hr-prediction/">
+
+  
+
+
+  
+
+  
+  
+  <meta name="theme-color" content="#0095eb">
+  
+  
+  
+  
+    
+  
+  
+    
+    
+      
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+      
+    
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha512-6MXa8B6uaO18Hid6blRMetEIoPqHf7Ux1tnyIQdpt9qI5OACx7C+O3IVTr98vwGnlcg0LOLa02i9Y1HpVhlfiw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+  
+  
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+  <link rel="stylesheet" href="/styles.css">
+  
+  <link rel="stylesheet" href="/css/green.css">
+  
+
+  
+    <script>
+      window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+      ga('create', 'UA-125414617-1', 'auto');
+      
+      ga('require', 'eventTracker');
+      ga('require', 'outboundLinkTracker');
+      ga('require', 'urlChangeTracker');
+      ga('send', 'pageview');
+    </script>
+    <script async src="//www.google-analytics.com/analytics.js"></script>
+    
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js" integrity="sha512-HUmooslVKj4m6OBu0OgzjXXr+QuFYy/k7eLI5jdeEy/F4RSgMn6XRWRGkFi5IFaFgy7uFTkegp3Z0XnJf3Jq+g==" crossorigin="anonymous"></script>
+    
+  
+
+  
+  <link rel="alternate" href="/index.xml" type="application/rss+xml" title="Math Lacome">
+  <link rel="feed" href="/index.xml" type="application/rss+xml" title="Math Lacome">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="/post/hr-prediction/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="twitter:site" content="@Mathlacome">
+  <meta property="twitter:creator" content="@Mathlacome">
+  
+  <meta property="og:site_name" content="Math Lacome">
+  <meta property="og:url" content="/post/hr-prediction/">
+  <meta property="og:title" content="Using external load to estimate HR responses. | Math Lacome">
+  <meta property="og:description" content="In my last post, we saw a method to perform simple between-players normalisation to get first insights on players’ “performance” status. Like every model, this model has some known limitations and thus, it is important to use it in combination with other models to create a full stream of information. To overcome the limitations inherent to the use of this model, examining the dose-response relationship between workload and immediate physiological responses (or more simply generic models of work efficiency, i."><meta property="og:image" content="/img/caption.jpg">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-10-19T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-10-19T00:00:00&#43;00:00">
+  
+
+  
+  
+
+  <title>Using external load to estimate HR responses. | Math Lacome</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="71" >
+
+<nav class="navbar navbar-default navbar-fixed-top" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="navbar-header">
+      
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+              data-target=".navbar-collapse" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      
+      <a class="navbar-brand" href="/">Math Lacome</a>
+    </div>
+
+    
+    <div class="collapse navbar-collapse">
+
+      
+      
+      <ul class="nav navbar-nav navbar-right">
+        
+
+        
+        
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a href="/#publications_selected">
+            
+            <span>Home</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+        
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a href="/#publications">
+            
+            <span>Publications</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+        
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a href="/#talks">
+            
+            <span>Talks</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+        
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a href="/#posts">
+            
+            <span>Posts</span>
+            
+          </a>
+        </li>
+
+        
+        
+
+        
+        
+        
+        
+        
+          
+        
+
+        <li class="nav-item">
+          <a href="/#about">
+            
+            <span>Contact</span>
+            
+          </a>
+        </li>
+
+        
+        
+      
+
+      
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  
+<div class="article-header">
+  
+  
+    <img src="/img/caption.jpg" class="article-banner" itemprop="image">
+  
+
+  
+</div>
+
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Using external load to estimate HR responses.</h1>
+
+    
+
+<div class="article-metadata">
+
+  <span class="article-date">
+    
+    <time datetime="2018-10-19 00:00:00 &#43;0000 UTC" itemprop="datePublished dateModified">
+      Oct 19, 2018
+    </time>
+  </span>
+  <span itemscope itemprop="author publisher" itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="Mathieu Lacome">
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    8 min read
+  </span>
+  
+
+  
+  
+
+  
+  
+  
+  <span class="middot-divider"></span>
+  <span class="article-categories">
+    <i class="fa fa-folder"></i>
+    
+    <a href="/categories/r/">R</a
+    >, 
+    
+    <a href="/categories/monitoring/">Monitoring</a
+    >
+    
+  </span>
+  
+  
+
+  
+  
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Using%20external%20load%20to%20estimate%20HR%20responses.&amp;url=%2fpost%2fhr-prediction%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=%2fpost%2fhr-prediction%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-facebook"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=%2fpost%2fhr-prediction%2f&amp;title=Using%20external%20load%20to%20estimate%20HR%20responses."
+         target="_blank" rel="noopener">
+        <i class="fa fa-linkedin"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=%2fpost%2fhr-prediction%2f&amp;title=Using%20external%20load%20to%20estimate%20HR%20responses."
+         target="_blank" rel="noopener">
+        <i class="fa fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Using%20external%20load%20to%20estimate%20HR%20responses.&amp;body=%2fpost%2fhr-prediction%2f">
+        <i class="fa fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+
+    <div class="article-style" itemprop="articleBody">
+      <p>In my last post, we saw a method to perform simple between-players normalisation to get first insights on players’ “performance” status. Like every model, this model has some known limitations and thus, it is important to use it in combination with other models to create a full stream of information. To overcome the limitations inherent to the use of this model, examining the dose-response relationship between workload and immediate physiological responses (or more simply generic models of work efficiency, i.e., output/cost relationships) may represent an advance to assess training status from data collected routinely in elite players.</p>
+<p>We recently published <a href="http://mathlacome.rbind.io/publication/2018-readiness-predhr/">a paper</a> that examines the ability of multivariate models to predict the HR responses to some specific training drills from various GPS variables and reports the usefulness of the difference in predicted vs actual HR responses as an index of fitness or readiness to perform. We find that these models had the ability to detect when the players were fit vs not fit and can be a tool to replace, tedious &amp; time-consuming formal testing.</p>
+<div class="figure"><span id="fig:unnamed-chunk-1"></span>
+<img src="/img/2_HRpred/Fig2.png" alt="Changes in Mechanical Work (a.u, upper panel), HR&lt;U+0394&gt; and HRRUN (lower panel) during pre-season and early in season in one representative elite soccer player." width="100%" />
+<p class="caption">
+Figure 1: Changes in Mechanical Work (a.u, upper panel), HR<U+0394> and HRRUN (lower panel) during pre-season and early in season in one representative elite soccer player.
+</p>
+</div>
+<p>For more information about the model and how we have tried to validate it, please <a href="http://mathlacome.rbind.io/publication/2018-readiness-predhr/">clic here.</a></p>
+<p>Now, let’s see how to do it in R.</p>
+<pre class="r"><code>library(&quot;tidyverse&quot;)       
+library(&quot;readxl&quot;)
+library(&quot;tidyverse&quot;)</code></pre>
+<p>As always, we start by importing our database into R.</p>
+<pre class="r"><code>Master &lt;- readRDS(&quot;~/MathLacome-2018-blog/content/post/Master.rds&quot;)
+head(Master,10)</code></pre>
+<pre><code>## # A tibble: 10 x 10
+##    Surname    Date `Drill Category` `%Hrmax` Av.spd `vL/min` `fL/min`
+##    &lt;chr&gt;     &lt;dbl&gt; &lt;chr&gt;               &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+##  1 P2      140630. Session              72.7   96.8     6.81     9.29
+##  2 P2      140630. WU                   70.4  150.     11.8     14.0 
+##  3 P2      140630. WU                   70.1  102.      8.00     9.15
+##  4 P2      140630. Ph                   80.6  102.      7.53    10.2 
+##  5 P2      140630. Po                   76.2   80.8     5.02     8.82
+##  6 P3      140630. Session              NA     95.1     5.85     6.81
+##  7 P3      140630. WU                   NA    151.     10.1     11.1 
+##  8 P3      140630. WU                   NA    102.      7.28     6.87
+##  9 P3      140630. Ph                   NA    105.      6.93     7.39
+## 10 P3      140630. Po                   NA     73.9     3.83     5.76
+## # ... with 3 more variables: `V1/min` &lt;dbl&gt;, `V2/min` &lt;dbl&gt;, `MECH
+## #   WORK/min` &lt;dbl&gt;</code></pre>
+<p>We are now proceeding to some data cleaning.</p>
+<pre class="r"><code># DATA.FRAME PREP - CLEANING -----------------------------------
+Master &lt;- Master %&gt;%
+  #Some of my value are not store as numeric - I change the case for these ones.
+  mutate(MechWmin = as.numeric(as.character(`MECH WORK/min`))) %&gt;%
+  mutate(vL.min = `vL/min`) %&gt;%
+  mutate(fL.min = `fL/min`) %&gt;%
+  mutate(V1.min = `V1/min`) %&gt;%
+  mutate(V2.min = `V2/min`) %&gt;%
+  dplyr::select(-c(`MECH WORK/min`, `vL/min`, `fL/min`, `V1/min`, `V2/min`)) %&gt;%
+  # I change the surname as factors.
+  mutate(Surname = as.factor(Surname))</code></pre>
+<div id="hr-models" class="section level2">
+<h2>HR models</h2>
+<p>In this part of the code, we will calculate the model presented in our paper published in <a href="https://www.ncbi.nlm.nih.gov/pubmed/29688115">IJSPP</a>. For this, we need to keep only the column we are interesting in. Within-player models will then be created using the step::stats function that allow to choose a model by AIC in a stepwise algorithm.</p>
+<pre class="r"><code>bdd &lt;- Master %&gt;%
+  select(-Date) %&gt;%
+  filter(`Drill Category` == &quot;Po&quot; | `Drill Category` == &quot;GS&quot;)
+
+# We create a Variable that will store our results &quot;Res&quot;
+res&lt;-c()
+
+# We create a function that will perform a Step multiple regression (lm) on each player (Surname)
+listeRes2 &lt;- lapply(X = unique(bdd$Surname), FUN = function(p){
+  #tryCatch function allow to store error &amp; avoid function to crash.
+  out &lt;- tryCatch(
+    {
+      bddjoueur &lt;- bdd %&gt;%
+  # First step is to filter Surname = p, than keep only HR &amp; GPS data in the data.frame by dropping Surname variable..
+        filter(Surname == p) %&gt;%
+        select(-Surname)
+    
+  # Second step, performing the step model on each subset.   
+      model &lt;- step(object = lm(`%Hrmax`~., data= na.omit(bddjoueur)),direction = &quot;both&quot;)
+      print(p)
+ # For some players, I have only a few points (academy players for exemple) - I will remove them later if needed.
+      Nb_obs &lt;- nrow(bddjoueur)
+# We store the model coefficients &amp; r.squared in the variable &quot;res&quot; to use it later.      
+      res&lt;-t(as.data.frame(model$coefficients)) %&gt;%
+        cbind(as.data.frame(summary(model)$adj.r.squared)) %&gt;%
+        mutate(Surname = p) %&gt;%
+# As we use a step model, we don&#39;t have the same number of column by players because some are dropped by the step model. The trick is to change the wide format (1 column per variable) to a long format (1 column to store the variable name &amp; 1 for values). We will then be able to bind the data.frame and transform it back in a proper wide format.
+        gather(-Surname, key = &quot;variable&quot;, value = &quot;value&quot;)
+      
+      return(res)
+    },
+# My model was crashing due to players with only 1 or 2 row of data. One option could have been to count the number of occurence and filter them. Insteap I decide to use a trycatch to store on one side good models &amp; store null values when I have errors.
+    error = function(p)
+      return(NULL)
+  )
+  return(out)
+}
+)</code></pre>
+<pre><code>## Start:  AIC=307.77
+## `%Hrmax` ~ `Drill Category` + Av.spd + MechWmin + vL.min + fL.min + 
+##     V1.min + V2.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## - V2.min            1      1.46 1194.3 305.93
+## - Av.spd            1      8.84 1201.7 306.75
+## - fL.min            1      9.66 1202.5 306.84
+## - `Drill Category`  1     12.65 1205.5 307.17
+## &lt;none&gt;                          1192.8 307.77
+## - vL.min            1     20.11 1213.0 307.99
+## - V1.min            1     30.21 1223.1 309.10
+## - MechWmin          1    421.45 1614.3 346.01
+## 
+## Step:  AIC=305.93
+## `%Hrmax` ~ `Drill Category` + Av.spd + MechWmin + vL.min + fL.min + 
+##     V1.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## - Av.spd            1      7.60 1201.9 304.78
+## - fL.min            1      9.52 1203.8 304.99
+## - `Drill Category`  1     14.76 1209.1 305.57
+## &lt;none&gt;                          1194.3 305.93
+## - vL.min            1     19.23 1213.5 306.06
+## + V2.min            1      1.46 1192.8 307.77
+## - V1.min            1     51.63 1246.0 309.56
+## - MechWmin          1    462.09 1656.4 347.43
+## 
+## Step:  AIC=304.78
+## `%Hrmax` ~ `Drill Category` + MechWmin + vL.min + fL.min + V1.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## - vL.min            1     12.77 1214.7 304.18
+## - `Drill Category`  1     13.38 1215.3 304.25
+## &lt;none&gt;                          1201.9 304.78
+## + Av.spd            1      7.60 1194.3 305.93
+## + V2.min            1      0.23 1201.7 306.75
+## - V1.min            1     44.12 1246.0 307.57
+## - fL.min            1     54.50 1256.4 308.67
+## - MechWmin          1    486.17 1688.1 347.95
+## 
+## Step:  AIC=304.18
+## `%Hrmax` ~ `Drill Category` + MechWmin + fL.min + V1.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## &lt;none&gt;                          1214.7 304.18
+## + vL.min            1     12.77 1201.9 304.78
+## - `Drill Category`  1     24.43 1239.1 304.83
+## + Av.spd            1      1.15 1213.5 306.06
+## + V2.min            1      0.83 1213.9 306.09
+## - V1.min            1     79.01 1293.7 310.56
+## - fL.min            1    110.64 1325.3 313.78
+## - MechWmin          1    707.14 1921.8 363.20
+## [1] P2
+## Levels: P1 P2 P3
+## Start:  AIC=179.02
+## `%Hrmax` ~ `Drill Category` + Av.spd + MechWmin + vL.min + fL.min + 
+##     V1.min + V2.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## - vL.min            1     1.078 650.30 177.15
+## - V1.min            1     5.986 655.21 177.72
+## &lt;none&gt;                          649.22 179.02
+## - V2.min            1    29.599 678.82 180.41
+## - `Drill Category`  1    64.641 713.86 184.24
+## - MechWmin          1    65.350 714.57 184.31
+## - fL.min            1    67.302 716.52 184.52
+## - Av.spd            1   108.113 757.34 188.73
+## 
+## Step:  AIC=177.15
+## `%Hrmax` ~ `Drill Category` + Av.spd + MechWmin + fL.min + V1.min + 
+##     V2.min
+## 
+##                    Df Sum of Sq    RSS    AIC
+## &lt;none&gt;                          650.30 177.15
+## - V2.min            1    29.448 679.75 178.51
+## + vL.min            1     1.078 649.22 179.02
+## - V1.min            1    49.542 699.84 180.73
+## - `Drill Category`  1    63.680 713.98 182.25
+## - MechWmin          1    69.561 719.86 182.87
+## - fL.min            1    73.764 724.06 183.31
+## - Av.spd            1   270.212 920.51 201.56
+## [1] P1
+## Levels: P1 P2 P3</code></pre>
+<pre class="r"><code># not optimal but I run a for loop on the different list to remove the NULL list. It would be faster to use vectorised functions but I need to investigate more on this part. 
+
+keep_list &lt;- c()
+
+for (j in 1:length(listeRes2)){
+  if(is.numeric(nrow(listeRes2[[j]]))==T){
+    keep_list &lt;- c(keep_list, listeRes2[j])
+  }
+}
+
+# Using purrr::reduce allow to apply the function bind_rows to all the list in keep_list and is faster than for loops 
+res &lt;- purrr::reduce(keep_list, bind_rows)
+
+# We change the long format we have to a wide format to have 1 column for each variable.
+Models &lt;- res %&gt;%
+  spread(&quot;variable&quot;, value = &quot;value&quot;)
+
+# Replace NA to 0 in our table.
+Models[is.na(Models)] &lt;- 0</code></pre>
+</div>
+<div id="back-to-hr-pred-calculations" class="section level2">
+<h2>Back to HR pred calculations</h2>
+<p>Now, we have done the more complicated part of the problem. We will only use familiar dplyr-based code.</p>
+<pre class="r"><code>Master_HRPred &lt;- Master %&gt;%
+ # We filter again only Po &amp; GS drills &amp; dropp all session where we didn&#39;t use HR monitoring.
+  dplyr::filter(`Drill Category` == &quot;Po&quot; | `Drill Category` == &quot;GS&quot;) %&gt;%
+  dplyr::filter(!is.na(`%Hrmax`)) %&gt;%
+# We left join the Models table containing all our models coefficient by Surname to get, for each player, the respective coefficient in the row.
+  left_join(Models, by = &quot;Surname&quot;) %&gt;%
+# We create a new variable to do the maths - Intercept + ax + by + ...
+# In this sample, my 2 models dropped some variables that I need to remove also in my formula. If you were running this code on a full squad, you will need to add all the variables here.  
+  mutate(HRpred = `(Intercept)` + (Av.spd.x * Av.spd.y) + (fL.min.x * fL.min.y)  + (V1.min.x * V1.min.y) + (V2.min.x * V2.min.y) + (MechWmin.y * MechWmin.x)) %&gt;%
+# HR delta is the difference between real &amp; pred - the lower the better for HRdelta.
+  mutate(HRdelta = `%Hrmax`- HRpred) %&gt;%
+# Finally grouping &amp; calculating a daily HRpred.
+  group_by(Surname, Date) %&gt;%
+  summarise(HRdelta = mean(HRdelta, na.rm = T))
+
+write_csv(Master_HRPred, &quot;Master_HRpred.csv&quot;)</code></pre>
+<p>We have now 1 row per player &amp; per day that could be easily visualized in R or Tableau. A simple visualisationof this dataset is available on my <a href="https://public.tableau.com/views/HR-predictions/Tableaudebord1?:embed=y&amp;:display_count=yes">tableau public account</a></p>
+<p><img src="/img/2_HRpred/Fig3.png" width="100%" /></p>
+</div>
+
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="btn btn-primary btn-outline" href="/tags/r/">R</a>
+  
+  <a class="btn btn-primary btn-outline" href="/tags/monitoring/">Monitoring</a>
+  
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/post/readiness/">Readiness or Between-player normalisation</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+    <div class="article-widget">
+      <div class="post-nav">
+  
+  
+  <div class="post-nav-item">
+    <div class="meta-nav">Previous</div>
+    <a href="/post/performance-comparison/" rel="prev">How to compare one performance with previous ones</a>
+  </div>
+  
+</div>
+
+    </div>
+    
+
+    
+
+
+  </div>
+</article>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="powered-by">
+
+      &copy; 2018 &middot; 
+
+      Powered by the
+      <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+      <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+      <span class="pull-right" aria-hidden="true">
+        <a href="#" id="back_to_top">
+          <span class="button_icon">
+            <i class="fa fa-chevron-up fa-2x"></i>
+          </span>
+        </a>
+      </span>
+
+    </p>
+  </div>
+</footer>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close btn-large" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Cite</h4>
+      </div>
+      <div>
+        <pre><code class="modal-body tex"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary btn-outline js-copy-cite" href="#" target="_blank">
+          <i class="fa fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-primary btn-outline js-download-cite" href="#" target="_blank">
+          <i class="fa fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    
+
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha512-3P8rXCuGJdNZOnUx/03c1jOTnMn3rP63nBip5gOP2qmUh5YAdVAvFZ1E+QLZZbC1rtMrQb+mah3AfYW11RUrWA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha512-iztkobsvnjKfAtTNdHkGVjAYTrrtlC7mGp/54c40wowO7LhURYl3gVzzcEqGl/qKXQltJ2HwMrdLcNUdo+N/RQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+    
+    
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+    
+      
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+      
+
+      
+
+      
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+
+  </body>
+</html>
+

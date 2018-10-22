@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>R on Math Lacome</title>
-    <link>/tags/r/</link>
-    <description>Recent content in R on Math Lacome</description>
+    <title>Monitoring on Math Lacome</title>
+    <link>/tags/monitoring/</link>
+    <description>Recent content in Monitoring on Math Lacome</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2018</copyright>
     <lastBuildDate>Fri, 19 Oct 2018 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/monitoring/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -19,16 +19,6 @@
       
       <guid>/post/hr-prediction/</guid>
       <description>In my last post, we saw a method to perform simple between-players normalisation to get first insights on players’ “performance” status. Like every model, this model has some known limitations and thus, it is important to use it in combination with other models to create a full stream of information. To overcome the limitations inherent to the use of this model, examining the dose-response relationship between workload and immediate physiological responses (or more simply generic models of work efficiency, i.</description>
-    </item>
-    
-    <item>
-      <title>Readiness or Between-player normalisation</title>
-      <link>/post/readiness/</link>
-      <pubDate>Mon, 27 Aug 2018 00:00:00 +0000</pubDate>
-      
-      <guid>/post/readiness/</guid>
-      <description>We (Martin Buchheit, Ben M. Simpson &amp;amp; me) recently published a paper dealing with monitoring training status with GPS. If this paper, we argue that “Since player activity patterns are more heavily influenced by contextual variables (e.g. rules, coaches’ interventions, scoreline, drills used) than players’ current fitness status 1, locomotor-related variables (level 1 and 2) may not be the most appropriate to directly monitor players’ training status.”
-We proposed that player activity normalisation relative to the mean or median of the team (or a sub-group of player) could be another way to look at the data.</description>
     </item>
     
   </channel>
