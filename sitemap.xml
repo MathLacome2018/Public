@@ -321,7 +321,7 @@
     
     <url>
     
-      <loc>/categories/dataviz/</loc>
+      <loc>/tags/dataviz/</loc>
       <lastmod>2018-09-20T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -331,7 +331,7 @@
     
     <url>
     
-      <loc>/tags/dataviz/</loc>
+      <loc>/categories/dataviz/</loc>
       <lastmod>2018-09-20T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -351,7 +351,7 @@
     
     <url>
     
-      <loc>/categories/monitoring/</loc>
+      <loc>/tags/monitoring/</loc>
       <lastmod>2018-10-19T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -361,7 +361,7 @@
     
     <url>
     
-      <loc>/tags/monitoring/</loc>
+      <loc>/categories/monitoring/</loc>
       <lastmod>2018-10-19T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -391,7 +391,7 @@
     
     <url>
     
-      <loc>/categories/r/</loc>
+      <loc>/tags/r/</loc>
       <lastmod>2018-10-19T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -401,7 +401,7 @@
     
     <url>
     
-      <loc>/tags/r/</loc>
+      <loc>/categories/r/</loc>
       <lastmod>2018-10-19T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -431,7 +431,7 @@
     
     <url>
     
-      <loc>/categories/tableau/</loc>
+      <loc>/tags/tableau/</loc>
       <lastmod>2018-09-20T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -441,7 +441,7 @@
     
     <url>
     
-      <loc>/tags/tableau/</loc>
+      <loc>/categories/tableau/</loc>
       <lastmod>2018-09-20T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -461,7 +461,7 @@
     
     <url>
     
-      <loc>/categories/training-load/</loc>
+      <loc>/tags/training-load/</loc>
       <lastmod>2018-08-27T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
@@ -471,7 +471,7 @@
     
     <url>
     
-      <loc>/tags/training-load/</loc>
+      <loc>/categories/training-load/</loc>
       <lastmod>2018-08-27T00:00:00+00:00</lastmod>
       <priority>0</priority>
     </url>
