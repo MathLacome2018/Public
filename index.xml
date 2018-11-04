@@ -11,6 +11,51 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Visualising force load distribution over time</title>
+      <link>/post/sparkline-disbalance/</link>
+      <pubDate>Sun, 04 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/sparkline-disbalance/</guid>
+      <description>&lt;p&gt;Recently, interest for GPS-embedded accelerometers variables has grown. Indeed, while classic locomotors variables give many pieces of information about the external load, little is known about how players’ cope with this load in return. GPS-embedded accelerometers, in return, allow the calculation of promising variables and among them, Force load. Force load refers to the sum of estimated ground reaction forces during all foot impacts, assessed via the accelerometer-derived magnitude vector ( &lt;a href=&#34;http://mathlacome.rbind.io/publication/2018-aspetar-rome1/&#34;&gt;Lacome et al.&lt;/a&gt;). Force load can be compared between left and right foot and be analysed to identify any potential weaknesses of a muscle group. Despite that one number in isolation means nothing when analysing potential imbalances - some players being not ‘balanced’ due to specific adaptation - looking at changes in force load distribution can potentially reveal some great insights.&lt;/p&gt;
+&lt;p&gt;In this post, we will see how to create a simple dashboard to track changes in force load distribution over time. We will create a simple sparkline to get an overview of the data and then a bubble chart to deep into specific variables.&lt;/p&gt;
+&lt;p&gt;I guess you know how to import data into Tableau now. if not, check my &lt;a href=&#34;http://mathlacome.rbind.io/post/performance-comparison/&#34;&gt;previous post&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Now that I have imported my ‘force load distribution’ database, I can start working. As I have some NULL value, Tableau specify the type of data as “STRING”.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-1.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;I change the class of my variable from “STRING” to “NUMBERS”.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-2.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Place ‘Measure Names’, then ‘Measure Values’ on your ‘Rows’ shelf.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-3.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Place a date field on the ‘Columns’ shelf. If you are following on your own Tableau software, you can see that Tableau aggregate the Date fields by YEARS. By right clicking on it, I changed the aggregation to “WEEKS”. Then, you can see that Tableau aggregate by default my ‘Measure Values’ (see bottom-left of the caption) as a Sum. While summing force load distribution by week is nonsense, averaging is much better. Right-click on the pills and we can change the aggregation to average.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-4.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Sparklines are generally used to provide an idea of the trend at a glance. So, usually, we remove the y-axis labels. As we are interested also about the side of the potential disbalance, I like using a 0-centred sparkline. To do this, right click on the y-axis and modify it.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-5.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;For the purpose of my dashboard, I change the ‘Measure Name’ from the ‘Rows’ shelf to the ‘Column’ one.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-6.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Sparklines are done. It’s only time for some formatting stuff and everyone is free to do it his way! Let’s now move onto part 2 and create the bubble chart. First of all, I only want 1 bubble chart in my Dashboard. The idea is that the user looks at the sparkline, see a trend and look at the bubble chart for more information on one specific variable.&lt;/p&gt;
+&lt;p&gt;The first part is then to create a parameter to allow the end-user to choose the variable he wants to see.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-7.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;We have created a parameter which allows the selection of 1 out of 4 values. From this parameter, we can create another calculated fields that will say “If you have selected A, give me Variable A (…)” The best option for this is to use a CASE statement.&lt;/p&gt;
+&lt;p&gt;Case statement said: CASE “Variable” (in our case the parameter) WHEN A then A1 WHEN B then B1 (…)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-8.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Next step - we can drag the newly created variable (here Variable_value) into the ‘Rows’ shelf and the date one into the ‘column’ shelf. For this bubble chart, I don’t want ‘date’ to be aggregated, so I select ‘Days’ and set them as a continuous variable. On the ‘Mark’ shelf, I change Lines for Circles.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-9.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;My next step is again to simplify the end-user job by providing some colours when values are abnormally high or low. We will create another calculated field as below…&lt;/p&gt;
+&lt;div class=&#34;figure&#34;&gt;&lt;span id=&#34;fig:unnamed-chunk-10&#34;&gt;&lt;/span&gt;
+&lt;img src=&#34;/img/3_Disbalances/Dis-10.png&#34; alt=&#34;Case statement&#34; width=&#34;100%&#34; /&gt;
+&lt;p class=&#34;caption&#34;&gt;
+Figure 1: Case statement
+&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;… and drag this new dimension into the ‘Color’ mark.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-11.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;I like using bands to figure out the ‘normal range’. We can go to ‘Analytics’ and drag a reference band.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;/img/3_Disbalances/Dis-12.png&#34; width=&#34;100%&#34; /&gt;&lt;/p&gt;
+&lt;p&gt;Our bubble chart is now ready. We can start merging everything into a nice dashboard and make it engaging for your end-user. If you want to play around with my dashboard and send me some comments, I’ll be happy to improve this one. Let me know if you think that clarity of the information displayed or end-user overall experience can be improved. In my next post about Tableau, I will try to go a bit deeper. Most of the time, these analyses need to be individualised and we will see how can we adapt the band based on potential SWC or effect sizes.&lt;/p&gt;
+&lt;iframe align = &#34;center&#34; width = &#34;700&#34; height = &#34;550&#34; src=&#34;https://public.tableau.com/profile/mathlacome#!/vizhome/Disbalances-Analysis/Tableaudebord1??:showVizHome=no&amp;:embed=true&#34;/&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Using external load to estimate HR responses.</title>
       <link>/post/hr-prediction/</link>
       <pubDate>Fri, 19 Oct 2018 00:00:00 +0000</pubDate>
@@ -524,19 +569,6 @@ If you prefer to watch it, the full video of the congres is there: &lt;a href=&#
       
       <guid>/publication/2018-fatigue-u20-intensified/</guid>
       <description></description>
-    </item>
-    
-    <item>
-      <title>FFF | PrepaFootPro | 2017</title>
-      <link>/talk/2017-fff/</link>
-      <pubDate>Sat, 02 Sep 2017 00:00:00 +0200</pubDate>
-      
-      <guid>/talk/2017-fff/</guid>
-      <description>&lt;p&gt;This congres was in French but you download the slides here:  &lt;a href=&#34;https://slides.com/mathieulacome/fff2017/fullscreen&#34; target=&#34;_blank&#34;&gt;Slides&lt;/a&gt;.
-Sorry for the quality but it has been uploaded from a Powerpoint.&lt;/p&gt;
-
-&lt;iframe src=&#34;//slides.com/mathieulacome/fff2017/embed&#34; width=&#34;800&#34; height=&#34;533&#34; scrolling=&#34;no&#34; frameborder=&#34;0&#34; webkitallowfullscreen mozallowfullscreen allowfullscreen&gt;&lt;/iframe&gt;
-</description>
     </item>
     
   </channel>

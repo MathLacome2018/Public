@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2018</copyright>
-    <lastBuildDate>Thu, 20 Sep 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 04 Nov 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/tableau/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Visualising force load distribution over time</title>
+      <link>/post/sparkline-disbalance/</link>
+      <pubDate>Sun, 04 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/sparkline-disbalance/</guid>
+      <description>Recently, interest for GPS-embedded accelerometers variables has grown. Indeed, while classic locomotors variables give many pieces of information about the external load, little is known about how players’ cope with this load in return. GPS-embedded accelerometers, in return, allow the calculation of promising variables and among them, Force load. Force load refers to the sum of estimated ground reaction forces during all foot impacts, assessed via the accelerometer-derived magnitude vector ( Lacome et al.</description>
+    </item>
     
     <item>
       <title>How to compare one performance with previous ones</title>
