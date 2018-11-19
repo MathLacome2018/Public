@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>&amp;copy; 2018</copyright>
-    <lastBuildDate>Fri, 19 Oct 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 13 Nov 2018 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Modeling intensity vs time.</title>
+      <link>/post/model-peak-intensity/</link>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/model-peak-intensity/</guid>
+      <description>One of the challenges to assess match demands is that the intensity and density of actions is likely time-independent, i.e., the longer the period, the lower the average intensity. Delaney et al. proposed to model match-related locomotor intensity vs. time relationship during matches using a power relationship. We used this method in a recent paper to examine at which extent different SSG formats could be used to either under- or overload the running- and/or mechanical- demands of competitive matches.</description>
+    </item>
     
     <item>
       <title>Using external load to estimate HR responses.</title>

@@ -11,6 +11,112 @@
     <atom:link href="/" rel="self" type="application/rss+xml" />
     
     <item>
+      <title>Modeling intensity vs time.</title>
+      <link>/post/model-peak-intensity/</link>
+      <pubDate>Tue, 13 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>/post/model-peak-intensity/</guid>
+      <description>&lt;p&gt;One of the challenges to assess match demands is that the intensity and density of actions is likely time-independent, i.e., the longer the period, the lower the average intensity. &lt;a href=&#34;https://www.researchgate.net/publication/315750153_Modelling_the_decrement_in_running_intensity_within_professional_soccer_players&#34;&gt;Delaney et al.&lt;/a&gt; proposed to model match-related locomotor intensity vs. time relationship during matches using a power relationship. We used this method in a &lt;a href=&#34;http://mathlacome.rbind.io/publication/2017-ssg-football/&#34;&gt;recent paper&lt;/a&gt; to examine at which extent different SSG formats could be used to either under- or overload the running- and/or mechanical- demands of competitive matches. In this post, we will see how to perform these analyses in R.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(&amp;quot;tidyverse&amp;quot;)       
+library(&amp;quot;readxl&amp;quot;)
+library(RcppRoll)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;First, I need to import csv files to create my database. To work around these models, we usually use multiple csv. An easy and efficient way to import a batch of files is to &lt;em&gt;map&lt;/em&gt; the &lt;em&gt;read_csv&lt;/em&gt; function over the differents files.&lt;/p&gt;
+&lt;p&gt;For this, the first step is to list all the files into our directory and then path the list of files as an argument to the function read_csv with the map function from the purrr package.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;my_files &amp;lt;- list.files(path = &amp;quot;C:/Users/mlacome/Documents/MathLacome-2018-blog/1_DataSets/0_GameData&amp;quot;, pattern=&amp;quot;*.csv&amp;quot;, full.names = TRUE)
+my_file &amp;lt;- map_dfr(my_files, read_csv, skip = 2, .id = &amp;quot;FileName&amp;quot;)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Parsed with column specification:
+## cols(
+##   `PLAYER NAME` = col_character(),
+##   `TEAM FIXTURE` = col_character(),
+##   `MATCH FIXTURE` = col_character(),
+##   HALF = col_character(),
+##   TIME = col_double(),
+##   `Player X Position` = col_integer(),
+##   `Player Y Position` = col_integer()
+## )
+## Parsed with column specification:
+## cols(
+##   `PLAYER NAME` = col_character(),
+##   `TEAM FIXTURE` = col_character(),
+##   `MATCH FIXTURE` = col_character(),
+##   HALF = col_character(),
+##   TIME = col_double(),
+##   `Player X Position` = col_integer(),
+##   `Player Y Position` = col_integer()
+## )
+## Parsed with column specification:
+## cols(
+##   `PLAYER NAME` = col_character(),
+##   `TEAM FIXTURE` = col_character(),
+##   `MATCH FIXTURE` = col_character(),
+##   HALF = col_character(),
+##   TIME = col_double(),
+##   `Player X Position` = col_integer(),
+##   `Player Y Position` = col_integer()
+## )
+## Parsed with column specification:
+## cols(
+##   `PLAYER NAME` = col_character(),
+##   `TEAM FIXTURE` = col_character(),
+##   `MATCH FIXTURE` = col_character(),
+##   HALF = col_character(),
+##   TIME = col_double(),
+##   `Player X Position` = col_integer(),
+##   `Player Y Position` = col_integer()
+## )&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;head(my_file)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 8
+##   FileName `PLAYER NAME` `TEAM FIXTURE` `MATCH FIXTURE` HALF        TIME
+##   &amp;lt;chr&amp;gt;    &amp;lt;chr&amp;gt;         &amp;lt;chr&amp;gt;          &amp;lt;chr&amp;gt;           &amp;lt;chr&amp;gt;      &amp;lt;dbl&amp;gt;
+## 1 1        Player1       Team1          Team2 v Team1   First Half 0.   
+## 2 1        Player1       Team1          Team2 v Team1   First Half 0.100
+## 3 1        Player1       Team1          Team2 v Team1   First Half 0.200
+## 4 1        Player1       Team1          Team2 v Team1   First Half 0.300
+## 5 1        Player1       Team1          Team2 v Team1   First Half 0.400
+## 6 1        Player1       Team1          Team2 v Team1   First Half 0.500
+## # ... with 2 more variables: `Player X Position` &amp;lt;int&amp;gt;, `Player Y
+## #   Position` &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We imported tracking data with only Players x &amp;amp; y positions. Using mutate, we can calculate distances, speeds &amp;amp; thus, distances covered in different speed zones.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;start_seg &amp;lt;- Sys.time()
+
+Game_analysis &amp;lt;- my_file %&amp;gt;%
+  group_by(`PLAYER NAME`, `MATCH FIXTURE`, HALF) %&amp;gt;%
+  mutate(Distance_m = (sqrt((`Player X Position` - lag(`Player X Position`))^2 + (`Player Y Position` - lag(`Player Y Position`))^2)) / 100) %&amp;gt;%
+  mutate(Speed_km.h = (Distance_m / 0.1)*3.6) %&amp;gt;%
+  mutate(Distance_14.4 = ifelse(Speed_km.h &amp;gt; 14.4, Distance_m, NA))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Warning: le package &amp;#39;bindrcpp&amp;#39; a été compilé avec la version R 3.4.3&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Delaney used different rolling average (from 1 to 15-min) to do his model. We can set the duration using a parameter. As my files have a frequency of 10Hz, I only need to multiply the number of minutes by 600.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roll_mean_dur &amp;lt;- c(1:15)*600L&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We want to perform the rolling average on distance covered &amp;amp; distance above 14.4 km.h-1 per minute in this exemple. The first step is to create a function (rolling_foo) that will store the rolling sum of distance covered. Then, we will use the map_dfr to apply our function for each rolling duration and store the results in a dataframe. We need approximatively 1min to analyse 4 files of 90+ minutes. I’m sure there is possibility to get something faster and would be happy to get your feedbacks.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;rolling_foo &amp;lt;- function(x){
+    res &amp;lt;- Game_analysis %&amp;gt;%
+    group_by(`PLAYER NAME`, `MATCH FIXTURE`, HALF) %&amp;gt;%
+    mutate(Roll_dur = x) %&amp;gt;%
+    mutate(Distance = roll_sum(Distance_m, x, by=1L, fill=NA, na.rm=T)) %&amp;gt;%
+    mutate(DistanceHS = roll_sum(Distance_14.4, x, by=1L, fill=NA, na.rm=T))
+}
+
+Game_analysis_2 &amp;lt;- map_dfr(roll_mean_dur, rolling_foo) %&amp;gt;%
+  group_by(`PLAYER NAME`, `MATCH FIXTURE`, Roll_dur) %&amp;gt;%
+  summarise(Peak_Dist_min = max(Distance, na.rm=T)/(mean(Roll_dur, na.rm=T)/600),
+            Peak_DistHS_min = max(DistanceHS, na.rm=T)/(mean(Roll_dur, na.rm=T)/600))
+
+end_seg &amp;lt;- Sys.time()
+(end_seg - start_seg)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Time difference of 1.152679 mins&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;As described in Delaney paper, a power law curve describes non-linear but clearly dependent relationships between two variables (x and y) &amp;amp; can be given by the equation: y = c * x^n where n and c are constants. To conclude this post, we need to perform the linear relationships on the log of Distances &amp;amp; log of durations.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;lm(log(Peak_Dist_min) ~ log(Roll_dur/600), data = Game_analysis_2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## 
+## Call:
+## lm(formula = log(Peak_Dist_min) ~ log(Roll_dur/600), data = Game_analysis_2)
+## 
+## Coefficients:
+##       (Intercept)  log(Roll_dur/600)  
+##            5.3120            -0.1626&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Visualising force load distribution over time</title>
       <link>/post/sparkline-disbalance/</link>
       <pubDate>Sun, 04 Nov 2018 00:00:00 +0000</pubDate>
@@ -559,15 +665,6 @@ If you prefer to watch it, the full video of the congres is there: &lt;a href=&#
       <pubDate>Thu, 01 Feb 2018 00:00:00 +0100</pubDate>
       
       <guid>/publication/2018-readiness-predhr/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Workload, fatigue and muscle damage in an u20 rugby union team over an intensified international tournament</title>
-      <link>/publication/2018-fatigue-u20-intensified/</link>
-      <pubDate>Mon, 01 Jan 2018 00:00:00 +0100</pubDate>
-      
-      <guid>/publication/2018-fatigue-u20-intensified/</guid>
       <description></description>
     </item>
     
