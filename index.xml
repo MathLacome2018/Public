@@ -77,18 +77,17 @@ my_file &amp;lt;- map_dfr(my_files, read_csv, skip = 2, .id = &amp;quot;FileName
 ## # ... with 2 more variables: `Player X Position` &amp;lt;int&amp;gt;, `Player Y
 ## #   Position` &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We imported tracking data with only Players x &amp;amp; y positions. Using mutate, we can calculate distances, speeds &amp;amp; thus, distances covered in different speed zones.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;start_seg &amp;lt;- Sys.time()
-
-Game_analysis &amp;lt;- my_file %&amp;gt;%
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;Game_analysis &amp;lt;- my_file %&amp;gt;%
   group_by(`PLAYER NAME`, `MATCH FIXTURE`, HALF) %&amp;gt;%
   mutate(Distance_m = (sqrt((`Player X Position` - lag(`Player X Position`))^2 + (`Player Y Position` - lag(`Player Y Position`))^2)) / 100) %&amp;gt;%
   mutate(Speed_km.h = (Distance_m / 0.1)*3.6) %&amp;gt;%
   mutate(Distance_14.4 = ifelse(Speed_km.h &amp;gt; 14.4, Distance_m, NA))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## Warning: le package &amp;#39;bindrcpp&amp;#39; a été compilé avec la version R 3.4.3&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Delaney used different rolling average (from 1 to 15-min) to do his model. We can set the duration using a parameter. As my files have a frequency of 10Hz, I only need to multiply the number of minutes by 600.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;roll_mean_dur &amp;lt;- c(1:15)*600L&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We want to perform the rolling average on distance covered &amp;amp; distance above 14.4 km.h-1 per minute in this exemple. The first step is to create a function (rolling_foo) that will store the rolling sum of distance covered. Then, we will use the map_dfr to apply our function for each rolling duration and store the results in a dataframe. We need approximatively 1min to analyse 4 files of 90+ minutes. I’m sure there is possibility to get something faster and would be happy to get your feedbacks.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;rolling_foo &amp;lt;- function(x){
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;start_seg &amp;lt;- Sys.time()
+
+rolling_foo &amp;lt;- function(x){
     res &amp;lt;- Game_analysis %&amp;gt;%
     group_by(`PLAYER NAME`, `MATCH FIXTURE`, HALF) %&amp;gt;%
     mutate(Roll_dur = x) %&amp;gt;%
@@ -103,9 +102,9 @@ Game_analysis_2 &amp;lt;- map_dfr(roll_mean_dur, rolling_foo) %&amp;gt;%
 
 end_seg &amp;lt;- Sys.time()
 (end_seg - start_seg)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## Time difference of 1.152679 mins&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## Time difference of 58.9198 secs&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;As described in Delaney paper, a power law curve describes non-linear but clearly dependent relationships between two variables (x and y) &amp;amp; can be given by the equation: y = c * x^n where n and c are constants. To conclude this post, we need to perform the linear relationships on the log of Distances &amp;amp; log of durations.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;lm(log(Peak_Dist_min) ~ log(Roll_dur/600), data = Game_analysis_2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(Peak_dist_model &amp;lt;- lm(log(Peak_Dist_min) ~ log(Roll_dur/600), data = Game_analysis_2))&lt;/code&gt;&lt;/pre&gt;
 &lt;pre&gt;&lt;code&gt;## 
 ## Call:
 ## lm(formula = log(Peak_Dist_min) ~ log(Roll_dur/600), data = Game_analysis_2)
@@ -113,6 +112,12 @@ end_seg &amp;lt;- Sys.time()
 ## Coefficients:
 ##       (Intercept)  log(Roll_dur/600)  
 ##            5.3120            -0.1626&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(Peak_Dist_Intercept &amp;lt;- exp(Peak_dist_model$coefficients[1]))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## (Intercept) 
+##    202.7516&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;(Peak_Dist_Slope &amp;lt;- Peak_dist_model$coefficients[2])&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## log(Roll_dur/600) 
+##        -0.1626441&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
